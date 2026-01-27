@@ -84,27 +84,27 @@ def _write_title(fb_rot, title):
     return y_cur + border
 
 
-def _show_base_data(price_data: PriceData, fb_b_rot, fb_r_rot, y_min):
+def _view_base_data(price_data: PriceData, fb_b_rot, fb_r_rot, y_min):
     pass
 
 
-def _show_discounted_data(price_data: PriceData, fb_b_rot, fb_r_rot, y_min):
+def _view_discounted_data(price_data: PriceData, fb_b_rot, fb_r_rot, y_min):
     fb_helper.draw_border(fb_r_rot, EPD_HEIGHT, EPD_WIDTH, 2)
 
 def _view_price_data_impl(price_data: PriceData, fb_b_rot, fb_r_rot):
     y_min = _write_title(fb_b_rot, price_data.name)
 
     if not price_data.discount_data:
-        _show_base_data(price_data, fb_b_rot, fb_r_rot, y_min)
+        _view_base_data(price_data, fb_b_rot, fb_r_rot, y_min)
     else:
-        _show_discounted_data(price_data, fb_b_rot, fb_r_rot, y_min)
+        _view_discounted_data(price_data, fb_b_rot, fb_r_rot, y_min)
 
 
 def view_price_data(price_data: PriceData):
     epd = epd2in13b.EPD(epdif.spi, epdif.cs, epdif.dc, epdif.rst, epdif.busy)
     epd.init()
 
-    buf_size = (EPD_WIDTH + 7) // 8 * EPD_HEIGHT
+    buf_size = fb_helper.get_bytearr_size(EPD_HEIGHT, EPD_WIDTH)
     black_buf = bytearray(buf_size)
     red_buf = bytearray(buf_size)
 
@@ -116,5 +116,5 @@ def view_price_data(price_data: PriceData):
     fb_b_rot.fill(1)
     fb_r_rot.fill(1)
 
-    _show_price_data(price_data, fb_b_rot, fb_r_rot)
+    _view_price_data_impl(price_data, fb_b_rot, fb_r_rot)
     _display_rotated(epd, fb_b_rot, fb_r_rot)
