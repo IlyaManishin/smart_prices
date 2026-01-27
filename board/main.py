@@ -12,7 +12,7 @@ def save_price_data(data: pr_view.PriceData):
     raw = {
         "name": data.name,
         "base_price": {
-            "price": data.base_price.price,
+            "rubs": data.base_price.rubs,
             "kopecks": data.base_price.kopecks
         },
         "discount": None
@@ -21,7 +21,7 @@ def save_price_data(data: pr_view.PriceData):
     if data.discount_data is not None:
         raw["discount"] = {
             "sale_price": {
-                "price": data.discount_data.sale_price.price,
+                "rubs": data.discount_data.sale_price.rubs,
                 "kopecks": data.discount_data.sale_price.kopecks
             },
             "discount": data.discount_data.discount
@@ -43,7 +43,7 @@ def load_price_data():
 
     base_price_raw = raw["base_price"]
     base_price = pr_view.PriceVal(
-        base_price_raw["price"],
+        base_price_raw["rubs"],
         base_price_raw["kopecks"]
     )
 
@@ -53,7 +53,7 @@ def load_price_data():
             d = raw["discount"]
             sp = d["sale_price"]
             sale_price = pr_view.PriceVal(
-                sp["price"],
+                sp["rubs"],
                 sp["kopecks"]
             )
             discount_data = pr_view.DiscountData(

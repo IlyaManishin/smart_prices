@@ -8,12 +8,12 @@ from . import fb_helper
 
 
 class PriceVal:
-    price: int
+    rubs: int
     kopecks: int
 
-    def __init__(self, price, kopecks):
-        self.price = price
-        self.kopecks = kopecks
+    def __init__(self, rubs, kopecks):
+        self.rubs = rubs
+        self.kopecks = kopecks % 100
 
 
 class DiscountData:
@@ -42,6 +42,11 @@ TITLE_MAX_LINES = 2
 TITLE_Y_OFF = 5
 
 PRICES_BLK_X = 120
+CROSSED_PRICE_OFF_X = 20
+CROSSED_PRICE_OFF_Y = 10
+
+RES_PRICE_SCALE = 4
+RES_PRICE_OFF_Y_DOWN = 10
 
 
 def _display_rotated(epd, fb_b_rot, fb_r_rot):
@@ -92,26 +97,25 @@ def _write_title(fb_rot, title) -> int:
     return y_cur + border
 
 
-def _view_base_price(price_data: PriceData, fb_b_rot, fb_r_rot, y_min):
+def _view_crossed_price(price_data: PriceData, fb_b_rot, y_min):
     pass
 
 
-def _view_crossed_price(price_data: PriceData, fb_b_rot, fb_r_rot, y_min):
-    pass
-
-
-def _view_result_price(price_data: PriceData, fb_b_rot, fb_r_rot, y_min):
-    pass
+def _view_result_price(price: PriceVal, fb_rot):
+    y = EPD_WIDTH - CH_SZ_Y * RES_PRICE_SCALE - RES_PRICE_OFF_Y_DOWN
+    x = fb_helper.draw_text_scaled(
+        fb_rot, str(price.rubs), PRICES_BLK_X, y, 0, RES_PRICE_SCALE, EPD_HEIGHT)
+    fb_helper.draw_text_scaled(
+        fb_rot, "." + str(price.kopecks), x, y, 0, 1, EPD_HEIGHT)
 
 
 def _view_price_data_impl(price_data: PriceData, fb_b_rot, fb_r_rot):
     y_min = _write_title(fb_b_rot, price_data.name)
 
-    if not price_data.discount_data:
-        _view_base_price(price_data, fb_b_rot, fb_r_rot, y_min)
-    else:
+    _view_result_price(price_data.base_price, fb_b_rot)
+    if price_data.discount_data:
         fb_helper.draw_border(fb_r_rot, EPD_HEIGHT, EPD_WIDTH, 2)
-        _view_result_price(price_data, fb_b_rot, fb_r_rot, y_min)
+        _view_result_price(price_data.base_price, fb_b_rot)
 
     fb_helper.write_logo(fb_b_rot, fb_r_rot, EPD_HEIGHT, EPD_WIDTH)
 

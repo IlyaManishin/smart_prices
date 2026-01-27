@@ -37,7 +37,7 @@ def draw_text_scaled(fb, text, x, y, color, scale, max_x):
         cx += w
         if cx + w > max_x:
             break
-    return cx, cy
+    return cx
 
 
 def draw_border(fb, w, h, depth):
