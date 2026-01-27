@@ -116,16 +116,15 @@ def _view_crossed_price(price_data: PriceVal, fb_rot, res_pr_pos: ElemPos) -> El
     ch_w = int(round(CH_SZ_X * CROSSED_PRICE_SCALE))
     ch_h = int(round(CH_SZ_Y * CROSSED_PRICE_SCALE))
 
-    price_text = str(price_data.rubs) + "." + str(price_data.kopecks)
-    
     x_st = res_pr_pos.x_st
-    x_end = x_st + len(price_text) * ch_w
     
     y_end = res_pr_pos.y_st - CROSSED_PRICE_OFF_Y
     y_st = y_end - ch_h
     
-    fb_helper.draw_text_scaled(
-        fb_rot, price_text, x_st, y_st, 0, CROSSED_PRICE_SCALE, EPD_HEIGHT)
+    x_cur = fb_helper.draw_text_scaled(
+        fb_rot, str(price_data.rubs), x_st, y_st, 0, CROSSED_PRICE_SCALE, EPD_HEIGHT)
+    x_end = fb_helper.draw_text_scaled(
+        fb_rot, str(price_data.kopecks), x_cur, y_st, 0, 1, EPD_HEIGHT)
     
     y_line = y_st + int(ch_h // 2)
     fb_rot.fill_rect(x_st, y_line, x_end - x_st, CROSS_DEPTH, 0)
