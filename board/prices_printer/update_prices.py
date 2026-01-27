@@ -30,7 +30,7 @@ BASE_X_OFF = 10
 CH_SIZE_X = 8
 CH_SIZE_Y = 8
 
-TITLE_SCALE = 2
+TITLE_SCALE = 1.7
 TITLE_MAX_LINES = 2
 TITLE_Y_OFF = 10
 
@@ -46,14 +46,30 @@ def _show_discounted_data(price_data: PriceData, fb_b_rot, fb_r_rot):
 
 def _write_title(fb_rot, title):
     max_text_width = EPD_HEIGHT - 2 * BASE_X_OFF
-    ch_size = CH_SIZE_X * TITLE_SCALE
-    ch_in_line = max_text_width // ch_size
+    ch_size_x = round(CH_SIZE_X * TITLE_SCALE)
+    ch_size_y = round(CH_SIZE_Y * TITLE_SCALE)
+    ch_in_line = max_text_width // ch_size_x
+
+    words = title.split()
+    lines = []
+    current_line = ""
+    for word in words:
+        if len(current_line + " " + word) <= ch_in_line:
+            if current_line:
+                current_line += " "
+            current_line += word
+        else:
+            if current_line:
+                lines.append(current_line)
+            current_line = word
+
+    if current_line:
+        lines.append(current_line)
 
     y_cur = TITLE_Y_OFF
-    for i in range(0, len(title), ch_in_line):
-        line = title[i: i + ch_in_line]
+    for line in lines:
         fb_helper.draw_text_scaled(fb_rot, line, BASE_X_OFF, y_cur, 0, TITLE_SCALE)
-        y_cur += CH_SIZE_Y * TITLE_SCALE + 2
+        y_cur += ch_size_y + 2
 
 
 def _show_base_data(price_data: PriceData, fb_b_rot, fb_r_rot):
