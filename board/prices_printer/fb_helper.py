@@ -23,6 +23,12 @@ def draw_text_scaled(fb, text, x, y, color, scale):
                     )
         cx += 8 * scale
 
+def draw_board(fb, w, h, depth):
+    fb.fill_rect(0, 0, w, depth, 0)
+    fb.fill_rect(0, h - depth, w, depth, 0)
+    fb.fill_rect(0, 0, depth, h, 0)
+    fb.fill_rect(w - depth, 0, depth, h, 0)
+
 def frame_buf_rot90(src, w, h) -> bytearray:
     buf = bytearray((h + 7) // 8 * w)
     dst_fb = framebuf.FrameBuffer(buf, h, w, framebuf.MONO_HLSB)

@@ -3,51 +3,91 @@ import framebuf
 
 from e_paper import epd2in13b
 from e_paper.config import EPD_HEIGHT, EPD_WIDTH
-import fr_buf_helper as buf_helper
-
-COLORED = 1
-UNCOLORED = 0
+import fb_helper
 
 
-class PricesData:
-    name: str
+class DiscountData:
+    sale_price: int = None
+    discount: int = None
 
-    base_price: int
-    sale_price: int
-    discount: int
-
-    def __init__(self, base_price, sale_price=None, discount=None):
-        self.base_price = base_price
+    def __init__(self, sale_price=None, discount=None):
         self.sale_price = sale_price
         self.discount = discount
 
 
-def display_rotated(epd, fb_black_rot, fb_red_rot, x_size, y_size):
-    epd.display(buf_helper.frame_buf_rot90(fb_black_rot, x_size, y_size),
-                buf_helper.frame_buf_rot90(fb_red_rot, x_size, y_size))
+class PriceData:
+    name: str
+    base_price: int
+    discount_data: DiscountData
+
+    def __init__(self, name, base_price, discount_data: DiscountData = None):
+        self.name = name
+        self.base_price = base_price
+        self.discount_data = discount_data
+
+BASE_X_OFF = 10
+
+CH_SIZE_X = 8
+CH_SIZE_Y = 8
+
+TITLE_SCALE = 2
+TITLE_MAX_LINES = 2
+TITLE_Y_OFF = 10
 
 
-def main():
+def _display_rotated(epd, fb_b_rot, fb_r_rot):
+    epd.display(fb_helper.frame_buf_rot90(fb_b_rot, EPD_HEIGHT, EPD_WIDTH),
+                fb_helper.frame_buf_rot90(fb_r_rot, EPD_HEIGHT, EPD_WIDTH))
+
+
+def _show_discounted_data(price_data: PriceData, fb_b_rot, fb_r_rot):
+    fb_helper.draw_board(fb_r_rot, EPD_HEIGHT, EPD_WIDTH, 2)
+
+
+def _write_title(fb_rot, title):
+    max_text_width = EPD_HEIGHT - 2 * BASE_X_OFF
+    ch_size = CH_SIZE_X * TITLE_SCALE
+    ch_in_line = max_text_width // ch_size
+
+    y_cur = TITLE_Y_OFF
+    for i in range(0, len(title), ch_in_line):
+        line = title[i: i + ch_in_line]
+        fb_helper.draw_text_scaled(fb_rot, line, BASE_X_OFF, y_cur, 0, TITLE_SCALE)
+        y_cur += CH_SIZE_Y * TITLE_SCALE + 2
+
+
+def _show_base_data(price_data: PriceData, fb_b_rot, fb_r_rot):
+    pass
+
+def _show_price_data(price_data: PriceData, fb_b_rot, fb_r_rot):
+    _write_title(fb_b_rot, price_data.name)
+
+    if not price_data.discount_data:
+        _show_base_data(price_data, fb_b_rot, fb_r_rot)
+    else:
+        _show_discounted_data(price_data, fb_b_rot, fb_r_rot)
+
+
+def write_price_data(price_data: PriceData):
     epd = epd2in13b.EPD(epdif.spi, epdif.cs, epdif.dc, epdif.rst, epdif.busy)
     epd.init()
+
     buf_size = (EPD_WIDTH + 7) // 8 * EPD_HEIGHT
     black_buf = bytearray(buf_size)
     red_buf = bytearray(buf_size)
 
-    fb_black_rot = framebuf.FrameBuffer(
+    fb_b_rot = framebuf.FrameBuffer(
         black_buf, EPD_HEIGHT, EPD_WIDTH, framebuf.MONO_HLSB)
-    fb_red_rot = framebuf.FrameBuffer(
+    fb_r_rot = framebuf.FrameBuffer(
         red_buf, EPD_HEIGHT, EPD_WIDTH, framebuf.MONO_HLSB)
 
-    fb_black_rot.fill(1)  
-    fb_red_rot.fill(1)
+    fb_b_rot.fill(1)
+    fb_r_rot.fill(1)
 
-
-    buf_helper.draw_text_scaled(fb_red_rot, "2 000", 20, 20, 0, 3)
-    display_rotated(epd, fb_black_rot, fb_red_rot, EPD_HEIGHT, EPD_WIDTH)
-
-    
+    _show_price_data(price_data, fb_b_rot, fb_r_rot)
+    _display_rotated(epd, fb_b_rot, fb_r_rot)
 
 
 if __name__ == '__main__':
-    main()
+    write_price_data(PriceData("Tea greanfield very big text",
+                     123123, DiscountData(12222, 23)))
