@@ -1,8 +1,14 @@
 {
-  "title": "Tea Greenfield Large Pack Large",
-  "price": 123123,
+  "name": "Tea Greenfield Large Pack Large",
+  "base_price": {
+    "price": 123,
+    "kopecks": 99
+  },
   "discount": {
-    "old_price": 12222,
-    "percent": 23
+    "sale_price": {
+      "price": 122,
+      "kopecks": 99
+    },
+    "discount": 23
   }
 }

@@ -3,22 +3,28 @@ import ujson
 import os
 
 
-def save_price_data(data):
+def save_price_data(data: pr_view.PriceData):
     try:
         os.stat("data")
     except OSError:
         os.mkdir("data")
 
     raw = {
-        "title": data.title,
-        "price": data.price,
+        "name": data.name,
+        "base_price": {
+            "price": data.base_price.price,
+            "kopecks": data.base_price.kopecks
+        },
         "discount": None
     }
 
-    if data.discount is not None:
+    if data.discount_data is not None:
         raw["discount"] = {
-            "old_price": data.discount.old_price,
-            "percent": data.discount.percent
+            "sale_price": {
+                "price": data.discount_data.sale_price.price,
+                "kopecks": data.discount_data.sale_price.kopecks
+            },
+            "discount": data.discount_data.discount
         }
 
     with open("data/prices.json", "w") as f:
@@ -27,7 +33,6 @@ def save_price_data(data):
 
 def load_price_data():
     path = "data/prices.json"
-
     try:
         os.stat(path)
     except OSError:
@@ -36,15 +41,32 @@ def load_price_data():
     with open(path, "r") as f:
         raw = ujson.load(f)
 
-    discount = None
+    base_price_raw = raw["base_price"]
+    base_price = pr_view.PriceVal(
+        base_price_raw["price"],
+        base_price_raw["kopecks"]
+    )
+
+    discount_data = None
     if "discount" in raw and raw["discount"] is not None:
-        d = raw["discount"]
-        discount = pr_view.DiscountData(d["old_price"], d["percent"])
+        try:
+            d = raw["discount"]
+            sp = d["sale_price"]
+            sale_price = pr_view.PriceVal(
+                sp["price"],
+                sp["kopecks"]
+            )
+            discount_data = pr_view.DiscountData(
+                sale_price,
+                d["discount"]
+            )
+        except:
+            return None
 
     return pr_view.PriceData(
-        raw["title"],
-        raw["price"],
-        discount
+        raw["name"],
+        base_price,
+        discount_data
     )
 
 
@@ -52,6 +74,7 @@ def main():
     data = load_price_data()
     if data is not None:
         pr_view.view_price_data(data)
+
 
 if __name__ == "__main__":
     main()

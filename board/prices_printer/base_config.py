@@ -1,0 +1,4 @@
+BASE_X_OFF = 10
+
+CH_SZ_X = 8
+CH_SZ_Y = 8
