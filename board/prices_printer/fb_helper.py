@@ -30,7 +30,7 @@ def draw_text_scaled(fb, text, x, y, color, scale):
                     )
         cx += int(round(8 * scale))
 
-def draw_board(fb, w, h, depth):
+def draw_border(fb, w, h, depth):
     fb.fill_rect(0, 0, w, depth, 0)
     fb.fill_rect(0, h - depth, w, depth, 0)
     fb.fill_rect(0, 0, depth, h, 0)

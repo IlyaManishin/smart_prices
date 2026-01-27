@@ -51,7 +51,7 @@ def load_price_data():
 def main():
     data = load_price_data()
     if data is not None:
-        pr_view.write_price_data(data)
+        pr_view.view_price_data(data)
 
 if __name__ == "__main__":
     main()

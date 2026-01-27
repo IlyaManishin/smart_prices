@@ -34,16 +34,12 @@ CH_SIZE_Y = 8
 MAX_TITLE_LINES = 2
 TITLE_SCALES = [1.7, 1.5, 1]
 TITLE_MAX_LINES = 2
-TITLE_Y_OFF = 10
+TITLE_Y_OFF = 5
 
 
 def _display_rotated(epd, fb_b_rot, fb_r_rot):
     epd.display(fb_helper.frame_buf_rot90(fb_b_rot, EPD_HEIGHT, EPD_WIDTH),
                 fb_helper.frame_buf_rot90(fb_r_rot, EPD_HEIGHT, EPD_WIDTH))
-
-
-def _show_discounted_data(price_data: PriceData, fb_b_rot, fb_r_rot):
-    fb_helper.draw_board(fb_r_rot, EPD_HEIGHT, EPD_WIDTH, 2)
 
 
 def _title_to_lines(title: str, scale: float):
@@ -83,23 +79,28 @@ def _write_title(fb_rot, title):
         fb_helper.draw_text_scaled(fb_rot, line, BASE_X_OFF, y_cur, 0, scale)
         y_cur += ch_size_y + 2
 
-    fb_rot.fill_rect(BASE_X_OFF, y_cur, EPD_HEIGHT - 2 * BASE_X_OFF, 1 , 0)
+    border = 1
+    fb_rot.fill_rect(BASE_X_OFF, y_cur, EPD_HEIGHT - 2 * BASE_X_OFF, border , 0)
+    return y_cur + border
 
 
-def _show_base_data(price_data: PriceData, fb_b_rot, fb_r_rot):
+def _show_base_data(price_data: PriceData, fb_b_rot, fb_r_rot, y_min):
     pass
 
 
-def _show_price_data(price_data: PriceData, fb_b_rot, fb_r_rot):
-    _write_title(fb_b_rot, price_data.name)
+def _show_discounted_data(price_data: PriceData, fb_b_rot, fb_r_rot, y_min):
+    fb_helper.draw_border(fb_r_rot, EPD_HEIGHT, EPD_WIDTH, 2)
+
+def _view_price_data_impl(price_data: PriceData, fb_b_rot, fb_r_rot):
+    y_min = _write_title(fb_b_rot, price_data.name)
 
     if not price_data.discount_data:
-        _show_base_data(price_data, fb_b_rot, fb_r_rot)
+        _show_base_data(price_data, fb_b_rot, fb_r_rot, y_min)
     else:
-        _show_discounted_data(price_data, fb_b_rot, fb_r_rot)
+        _show_discounted_data(price_data, fb_b_rot, fb_r_rot, y_min)
 
 
-def write_price_data(price_data: PriceData):
+def view_price_data(price_data: PriceData):
     epd = epd2in13b.EPD(epdif.spi, epdif.cs, epdif.dc, epdif.rst, epdif.busy)
     epd.init()
 
