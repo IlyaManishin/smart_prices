@@ -32,7 +32,7 @@ CH_SIZE_X = 8
 CH_SIZE_Y = 8
 
 MAX_TITLE_LINES = 2
-TITLE_SCALE = 1.7
+TITLE_SCALES = [1.7, 1.5, 1]
 TITLE_MAX_LINES = 2
 TITLE_Y_OFF = 10
 
@@ -70,17 +70,20 @@ def _title_to_lines(title: str, scale: float):
 
 
 def _write_title(fb_rot, title):
-    scale = TITLE_SCALE
-    lines = _title_to_lines(title, scale)
-    if len(lines) > MAX_TITLE_LINES:
-        scale = 1
+    scale = None
+    lines = []
+    for scale in TITLE_SCALES:
         lines = _title_to_lines(title, scale)
+        if len(lines) <= MAX_TITLE_LINES:
+            break
 
     y_cur = TITLE_Y_OFF
     ch_size_y = round(CH_SIZE_Y * scale)
     for line in lines:
         fb_helper.draw_text_scaled(fb_rot, line, BASE_X_OFF, y_cur, 0, scale)
         y_cur += ch_size_y + 2
+
+    fb_rot.fill_rect(BASE_X_OFF, y_cur, EPD_HEIGHT - 2 * BASE_X_OFF, 1 , 0)
 
 
 def _show_base_data(price_data: PriceData, fb_b_rot, fb_r_rot):
