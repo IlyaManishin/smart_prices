@@ -12,8 +12,8 @@ class PriceVal:
     kopecks: int
 
     def __init__(self, rubs, kopecks):
-        self.rubs = rubs
-        self.kopecks = kopecks % 100
+        self.rubs = rubs % MAX_PRICE
+        self.kopecks = kopecks % MAX_KOPECKS
 
 
 class DiscountData:
@@ -22,7 +22,7 @@ class DiscountData:
 
     def __init__(self, sale_price: PriceVal, discount):
         self.sale_price = sale_price
-        self.discount = discount
+        self.discount = discount % MAX_DISCOUNT
 
 
 class PriceData:
@@ -45,7 +45,7 @@ PRICES_BLK_X = 120
 CROSSED_PRICE_OFF_X = 20
 CROSSED_PRICE_OFF_Y = 10
 
-RES_PRICE_SCALE = 4
+RES_PRICE_SCALES = [3, 2.5, 2]
 RES_PRICE_OFF_Y_DOWN = 10
 
 
@@ -102,11 +102,24 @@ def _view_crossed_price(price_data: PriceData, fb_b_rot, y_min):
 
 
 def _view_result_price(price: PriceVal, fb_rot):
-    y = EPD_WIDTH - CH_SZ_Y * RES_PRICE_SCALE - RES_PRICE_OFF_Y_DOWN
+    base_price = price.rubs
+    scale = RES_PRICE_SCALES[0]
+    if len(str(base_price)) >= 7:
+        scale = RES_PRICE_SCALES[2]
+    elif len(str(base_price)) >= 5:
+        scale = RES_PRICE_SCALES[1]
+        
+    rubs_str = str(price.rubs)
+    kopecks_str =  "." + str(price.kopecks)
+    str_size = len(rubs_str) * CH_SZ_X * scale + len(kopecks_str) * CH_SZ_X
+
+    x = int(EPD_HEIGHT - BASE_X_OFF - str_size)
+    y = int(EPD_WIDTH - CH_SZ_Y * scale - RES_PRICE_OFF_Y_DOWN)
+    
     x = fb_helper.draw_text_scaled(
-        fb_rot, str(price.rubs), PRICES_BLK_X, y, 0, RES_PRICE_SCALE, EPD_HEIGHT)
+        fb_rot, rubs_str, x, y, 0, scale, EPD_HEIGHT)
     fb_helper.draw_text_scaled(
-        fb_rot, "." + str(price.kopecks), x, y, 0, 1, EPD_HEIGHT)
+        fb_rot, kopecks_str, x, y, 0, 1, EPD_HEIGHT)
 
 
 def _view_price_data_impl(price_data: PriceData, fb_b_rot, fb_r_rot):
