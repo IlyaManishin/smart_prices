@@ -1,14 +1,17 @@
-import epdif
+from e_paper import epdif
 import framebuf
 
 from e_paper import epd2in13b
 from e_paper.config import EPD_HEIGHT, EPD_WIDTH
+import fr_buf_helper as buf_helper
 
 COLORED = 1
 UNCOLORED = 0
 
 
 class PricesData:
+    name: str
+
     base_price: int
     sale_price: int
     discount: int
@@ -19,26 +22,9 @@ class PricesData:
         self.discount = discount
 
 
-def draw_text_scaled(fb, text, x, y, color, scale):
-    glyph_buf = bytearray(8)
-    glyph = framebuf.FrameBuffer(glyph_buf, 8, 8, framebuf.MONO_HLSB)
-
-    cx = x
-    for ch in text:
-        glyph.fill(0)
-        glyph.text(ch, 0, 0, 1)
-
-        for py in range(8):
-            for px in range(8):
-                if glyph.pixel(px, py):
-                    fb.fill_rect(
-                        cx + px * scale,
-                        y + py * scale,
-                        scale,
-                        scale,
-                        color
-                    )
-        cx += 8 * scale
+def display_rotated(epd, fb_black_rot, fb_red_rot, x_size, y_size):
+    epd.display(buf_helper.frame_buf_rot90(fb_black_rot, x_size, y_size),
+                buf_helper.frame_buf_rot90(fb_red_rot, x_size, y_size))
 
 
 def main():
@@ -48,17 +34,19 @@ def main():
     black_buf = bytearray(buf_size)
     red_buf = bytearray(buf_size)
 
-    fb_black = framebuf.FrameBuffer(
-        black_buf, EPD_WIDTH, EPD_HEIGHT, framebuf.MONO_HLSB)
-    fb_red = framebuf.FrameBuffer(
-        red_buf,   EPD_WIDTH, EPD_HEIGHT, framebuf.MONO_HLSB)
+    fb_black_rot = framebuf.FrameBuffer(
+        black_buf, EPD_HEIGHT, EPD_WIDTH, framebuf.MONO_HLSB)
+    fb_red_rot = framebuf.FrameBuffer(
+        red_buf, EPD_HEIGHT, EPD_WIDTH, framebuf.MONO_HLSB)
 
-    fb_black.fill(1)   # 1 = белый фон, 0 = чёрный
-    fb_red.fill(1)
+    fb_black_rot.fill(1)  
+    fb_red_rot.fill(1)
 
-    draw_text_scaled(fb_red, "2 000", 20, 20, 0, 2)
 
-    epd.display(black_buf, red_buf)
+    buf_helper.draw_text_scaled(fb_red_rot, "2 000", 20, 20, 0, 3)
+    display_rotated(epd, fb_black_rot, fb_red_rot, EPD_HEIGHT, EPD_WIDTH)
+
+    
 
 
 if __name__ == '__main__':
