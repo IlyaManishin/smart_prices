@@ -1,9 +1,9 @@
-from e_paper import epdif
 import framebuf
 
-from e_paper import epd2in13b
-from e_paper.config import EPD_HEIGHT, EPD_WIDTH
-import fb_helper
+from .e_paper import epdif
+from .e_paper import epd2in13b
+from .e_paper.config import EPD_HEIGHT, EPD_WIDTH
+from . import fb_helper
 
 
 class DiscountData:
@@ -25,11 +25,13 @@ class PriceData:
         self.base_price = base_price
         self.discount_data = discount_data
 
+
 BASE_X_OFF = 10
 
 CH_SIZE_X = 8
 CH_SIZE_Y = 8
 
+MAX_TITLE_LINES = 2
 TITLE_SCALE = 1.7
 TITLE_MAX_LINES = 2
 TITLE_Y_OFF = 10
@@ -44,10 +46,9 @@ def _show_discounted_data(price_data: PriceData, fb_b_rot, fb_r_rot):
     fb_helper.draw_board(fb_r_rot, EPD_HEIGHT, EPD_WIDTH, 2)
 
 
-def _write_title(fb_rot, title):
+def _title_to_lines(title: str, scale: float):
     max_text_width = EPD_HEIGHT - 2 * BASE_X_OFF
-    ch_size_x = round(CH_SIZE_X * TITLE_SCALE)
-    ch_size_y = round(CH_SIZE_Y * TITLE_SCALE)
+    ch_size_x = round(CH_SIZE_X * scale)
     ch_in_line = max_text_width // ch_size_x
 
     words = title.split()
@@ -65,15 +66,26 @@ def _write_title(fb_rot, title):
 
     if current_line:
         lines.append(current_line)
+    return lines
+
+
+def _write_title(fb_rot, title):
+    scale = TITLE_SCALE
+    lines = _title_to_lines(title, scale)
+    if len(lines) > MAX_TITLE_LINES:
+        scale = 1
+        lines = _title_to_lines(title, scale)
 
     y_cur = TITLE_Y_OFF
+    ch_size_y = round(CH_SIZE_Y * scale)
     for line in lines:
-        fb_helper.draw_text_scaled(fb_rot, line, BASE_X_OFF, y_cur, 0, TITLE_SCALE)
+        fb_helper.draw_text_scaled(fb_rot, line, BASE_X_OFF, y_cur, 0, scale)
         y_cur += ch_size_y + 2
 
 
 def _show_base_data(price_data: PriceData, fb_b_rot, fb_r_rot):
     pass
+
 
 def _show_price_data(price_data: PriceData, fb_b_rot, fb_r_rot):
     _write_title(fb_b_rot, price_data.name)
@@ -102,8 +114,3 @@ def write_price_data(price_data: PriceData):
 
     _show_price_data(price_data, fb_b_rot, fb_r_rot)
     _display_rotated(epd, fb_b_rot, fb_r_rot)
-
-
-if __name__ == '__main__':
-    write_price_data(PriceData("Tea greanfield very big text",
-                     123123, DiscountData(12222, 23)))

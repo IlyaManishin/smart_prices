@@ -1,0 +1,8 @@
+{
+  "title": "Tea Greenfield Large Pack Large Pack Large Pack",
+  "price": 123123,
+  "discount": {
+    "old_price": 12222,
+    "percent": 23
+  }
+}

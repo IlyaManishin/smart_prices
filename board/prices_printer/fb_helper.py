@@ -1,5 +1,4 @@
 import framebuf
-from e_paper.config import EPD_HEIGHT, EPD_WIDTH
 
 
 def draw_text_scaled(fb, text, x, y, color, scale):
