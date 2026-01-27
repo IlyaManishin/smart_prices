@@ -1,10 +1,22 @@
-import epd2in13b
-from epd2in13b import EPD_HEIGHT, EPD_WIDTH
 import epdif
 import framebuf
 
+from e_paper import epd2in13b
+from e_paper.config import EPD_HEIGHT, EPD_WIDTH
+
 COLORED = 1
 UNCOLORED = 0
+
+
+class PricesData:
+    base_price: int
+    sale_price: int
+    discount: int
+
+    def __init__(self, base_price, sale_price=None, discount=None):
+        self.base_price = base_price
+        self.sale_price = sale_price
+        self.discount = discount
 
 
 def draw_text_scaled(fb, text, x, y, color, scale):
@@ -27,26 +39,27 @@ def draw_text_scaled(fb, text, x, y, color, scale):
                         color
                     )
         cx += 8 * scale
-        
+
+
 def main():
     epd = epd2in13b.EPD(epdif.spi, epdif.cs, epdif.dc, epdif.rst, epdif.busy)
     epd.init()
     buf_size = (EPD_WIDTH + 7) // 8 * EPD_HEIGHT
     black_buf = bytearray(buf_size)
-    red_buf   = bytearray(buf_size)
+    red_buf = bytearray(buf_size)
 
-    fb_black = framebuf.FrameBuffer(black_buf, EPD_WIDTH, EPD_HEIGHT, framebuf.MONO_HLSB)
-    fb_red   = framebuf.FrameBuffer(red_buf,   EPD_WIDTH, EPD_HEIGHT, framebuf.MONO_HLSB)
+    fb_black = framebuf.FrameBuffer(
+        black_buf, EPD_WIDTH, EPD_HEIGHT, framebuf.MONO_HLSB)
+    fb_red = framebuf.FrameBuffer(
+        red_buf,   EPD_WIDTH, EPD_HEIGHT, framebuf.MONO_HLSB)
 
     fb_black.fill(1)   # 1 = белый фон, 0 = чёрный
     fb_red.fill(1)
 
-    # fb_red.text("2 000 000", 20, 20, 0)   
     draw_text_scaled(fb_red, "2 000", 20, 20, 0, 2)
 
-
     epd.display(black_buf, red_buf)
-    
+
+
 if __name__ == '__main__':
     main()
-

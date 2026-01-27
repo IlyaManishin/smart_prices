@@ -1,12 +1,14 @@
-from machine import Pin, SPI
+from . import config
 from time import sleep_ms
-
-EPD_WIDTH = 122
-EPD_HEIGHT = 250
 
 
 class EPD:
-    def __init__(self, spi, cs_pin, dc_pin, rst_pin, busy_pin):
+    def __init__(self,
+                 spi=config.spi,
+                 cs_pin=config.cs,
+                 dc_pin=config.dc,
+                 rst_pin=config.rst,
+                 busy_pin=config.busy):
         self.spi = spi
         self.cs = cs_pin
         self.dc = dc_pin
@@ -18,8 +20,8 @@ class EPD:
         self.rst.init(self.rst.OUT, value=0)
         self.busy.init(self.busy.IN)
 
-        self.width = EPD_WIDTH
-        self.height = EPD_HEIGHT
+        self.width = config.EPD_WIDTH
+        self.height = config.EPD_HEIGHT
 
     def reset(self):
         self.rst(1)
@@ -45,7 +47,7 @@ class EPD:
         self.cs(1)
 
     def busy_wait(self):
-        while self.busy.value() != 0:  # 0 = busy (в коде Waveshare: !=0 значит busy)
+        while self.busy.value() != 0:
             sleep_ms(10)
 
     def init(self):
