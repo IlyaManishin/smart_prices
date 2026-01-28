@@ -114,14 +114,14 @@ def _view_title(fb_rot, title) -> ElemPos:
     return ElemPos(0, 0, EPD_HEIGHT, y_cur + 1)
 
 
-def _view_discount(discount: int, fb_rot) -> ElemPos:
+def _view_discount(discount: int, fb_rot, res_pr_pos: ElemPos) -> ElemPos:
     text = "-" + str(discount) + "%"
 
     ch_h = CH_SZ_Y * DISCOUNT_SCALE
 
     x_st = EDGE_X_OFF
-    y_end = EPD_WIDTH - RES_PRICE_OFF_Y_DOWN
-    y_st = int(y_end - ch_h)
+    y_st = res_pr_pos.y_st
+    y_end = y_st + ch_h
 
     x_end = fb_helper.draw_text_scaled(
         fb_rot, text, x_st, y_st, 0, DISCOUNT_SCALE, EPD_HEIGHT)
@@ -188,7 +188,7 @@ def _view_price_data_impl(price_data: PriceData, fb_b_rot, fb_r_rot):
         fb_helper.draw_border(fb_r_rot, EPD_HEIGHT, EPD_WIDTH, BASE_BORDER_DEPTH)
         _view_crossed_price(
             d_data.base_price, fb_r_rot, res_pr_pos)
-        _view_discount(d_data.discount, fb_r_rot)
+        _view_discount(d_data.discount, fb_r_rot, res_pr_pos)
     else:
         fb_helper.draw_border(fb_b_rot, EPD_HEIGHT, EPD_WIDTH, BASE_BORDER_DEPTH)
         
