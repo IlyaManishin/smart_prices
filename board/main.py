@@ -11,18 +11,18 @@ def save_price_data(data: pr_view.PriceData):
 
     raw = {
         "name": data.name,
-        "base_price": {
-            "rubs": data.base_price.rubs,
-            "kopecks": data.base_price.kopecks
+        "res_price": {
+            "rubs": data.res_price.rubs,
+            "kopecks": data.res_price.kopecks
         },
         "discount": None
     }
 
     if data.discount_data is not None:
         raw["discount"] = {
-            "sale_price": {
-                "rubs": data.discount_data.sale_price.rubs,
-                "kopecks": data.discount_data.sale_price.kopecks
+            "base_price": {
+                "rubs": data.discount_data.base_price.rubs,
+                "kopecks": data.discount_data.base_price.kopecks
             },
             "discount": data.discount_data.discount
         }
@@ -41,23 +41,26 @@ def load_price_data():
     with open(path, "r") as f:
         raw = ujson.load(f)
 
-    base_price_raw = raw["base_price"]
-    base_price = pr_view.PriceVal(
-        base_price_raw["rubs"],
-        base_price_raw["kopecks"]
+    if "res_price" not in raw:
+        return None
+    
+    rp_json = raw["res_price"]
+    res_price = pr_view.PriceVal(
+        rp_json["rubs"],
+        rp_json["kopecks"]
     )
 
     discount_data = None
     if "discount" in raw and raw["discount"] is not None:
         try:
             d = raw["discount"]
-            sp = d["sale_price"]
-            sale_price = pr_view.PriceVal(
-                sp["rubs"],
-                sp["kopecks"]
+            bp = d["base_price"]
+            base_price = pr_view.PriceVal(
+                bp["rubs"],
+                bp["kopecks"]
             )
             discount_data = pr_view.DiscountData(
-                sale_price,
+                base_price,
                 d["discount"]
             )
         except:
@@ -65,7 +68,7 @@ def load_price_data():
 
     return pr_view.PriceData(
         raw["name"],
-        base_price,
+        res_price,
         discount_data
     )
 

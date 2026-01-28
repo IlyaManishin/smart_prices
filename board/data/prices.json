@@ -1,12 +1,12 @@
 {
   "name": "Tea Greenfield Large Pack Large",
-  "base_price": {
-    "rubs": 123,
+  "res_price": {
+    "rubs": 122,
     "kopecks": 99
   },
   "discount": {
-    "sale_price": {
-      "rubs": 122,
+    "base_price": {
+      "rubs": 123,
       "kopecks": 99
     },
     "discount": 23

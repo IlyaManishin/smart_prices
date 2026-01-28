@@ -17,22 +17,22 @@ class PriceVal:
 
 
 class DiscountData:
-    sale_price: PriceVal
+    base_price: PriceVal
     discount: int
 
-    def __init__(self, sale_price: PriceVal, discount):
-        self.sale_price = sale_price
+    def __init__(self, base_price: PriceVal, discount):
+        self.base_price = base_price
         self.discount = discount % MAX_DISCOUNT
 
 
 class PriceData:
     name: str
-    base_price: PriceVal
+    res_price: PriceVal
     discount_data: DiscountData
 
-    def __init__(self, name, base_price: PriceVal, discount_data: DiscountData = None):
+    def __init__(self, name, res_price: PriceVal, discount_data: DiscountData = None):
         self.name = name
-        self.base_price = base_price
+        self.res_price = res_price
         self.discount_data = discount_data
 
 
@@ -49,17 +49,19 @@ class ElemPos:
         self.y_end = y_end
 
 
-MAX_TITLE_LINES = 2
+TITLE_LINES_MAX = 2
 TITLE_SCALES = [1.7, 1.5, 1]
 TITLE_MAX_LINES = 2
 TITLE_Y_OFF = 5
 
 PRICES_BLK_X = 120
 CROSS_DEPTH = 1
-CROSSED_PRICE_OFF_Y = 6
-CROSSED_PRICE_SCALE = 1.7
+CROSSED_PRICE_OFF_Y = 8
+CROSSED_PRICE_SCALES = [2.5, 2, 1]
 
-RES_PRICE_SCALES = [3, 2.5, 2]
+DISCOUNT_SCALE = 3
+
+RES_PRICE_SCALES = [3.5, 3, 2.5]
 RES_PRICE_OFF_Y_DOWN = 10
 
 
@@ -96,7 +98,7 @@ def _view_title(fb_rot, title) -> ElemPos:
     lines = []
     for scale in TITLE_SCALES:
         lines = _title_to_lines(title, scale)
-        if len(lines) <= MAX_TITLE_LINES:
+        if len(lines) <= TITLE_LINES_MAX:
             break
 
     y_cur = TITLE_Y_OFF
@@ -112,36 +114,56 @@ def _view_title(fb_rot, title) -> ElemPos:
     return ElemPos(0, 0, EPD_HEIGHT, y_cur + 1)
 
 
-def _view_crossed_price(price_data: PriceVal, fb_rot, res_pr_pos: ElemPos) -> ElemPos:
-    ch_w = int(round(CH_SZ_X * CROSSED_PRICE_SCALE))
-    ch_h = int(round(CH_SZ_Y * CROSSED_PRICE_SCALE))
+def _view_discount(discount: int, fb_rot) -> ElemPos:
+    text = "-" + str(discount) + "%"
+
+    ch_h = CH_SZ_Y * DISCOUNT_SCALE
+
+    x_st = EDGE_X_OFF
+    y_end = EPD_WIDTH - RES_PRICE_OFF_Y_DOWN
+    y_st = int(y_end - ch_h)
+
+    x_end = fb_helper.draw_text_scaled(
+        fb_rot, text, x_st, y_st, 0, DISCOUNT_SCALE, EPD_HEIGHT)
+
+    return ElemPos(x_st, y_st, x_end, y_end)
+
+
+def _view_crossed_price(price: PriceVal, fb_rot, res_pr_pos: ElemPos) -> ElemPos:
+    rubs_str = str(price.rubs)
+
+    scale = CROSSED_PRICE_SCALES[0]
+    if len(rubs_str) >= 7:
+        scale = CROSSED_PRICE_SCALES[2]
+    elif len(rubs_str) >= 5:
+        scale = CROSSED_PRICE_SCALES[1]
+
+    ch_h = int(round(CH_SZ_Y * scale))
 
     x_st = res_pr_pos.x_st
-    
     y_end = res_pr_pos.y_st - CROSSED_PRICE_OFF_Y
     y_st = y_end - ch_h
-    
+
     x_cur = fb_helper.draw_text_scaled(
-        fb_rot, str(price_data.rubs), x_st, y_st, 0, CROSSED_PRICE_SCALE, EPD_HEIGHT)
+        fb_rot, rubs_str, x_st, y_st, 0, scale, EPD_HEIGHT)
     x_end = fb_helper.draw_text_scaled(
-        fb_rot, str(price_data.kopecks), x_cur, y_st, 0, 1, EPD_HEIGHT)
-    
-    y_line = y_st + int(ch_h // 2)
+        fb_rot, str(price.kopecks), x_cur, y_st, 0, 1, EPD_HEIGHT)
+
+    y_line = y_st + (ch_h >> 1)
     fb_rot.fill_rect(x_st, y_line, x_end - x_st, CROSS_DEPTH, 0)
 
     return ElemPos(x_st, y_st, x_end, y_end)
-    
 
-def _view_base_price(price: PriceVal, fb_rot) -> ElemPos:
-    base_price = price.rubs
+def _view_res_price(price: PriceVal, fb_rot) -> ElemPos:
     scale = RES_PRICE_SCALES[0]
-    if len(str(base_price)) >= 7:
-        scale = RES_PRICE_SCALES[2]
-    elif len(str(base_price)) >= 5:
-        scale = RES_PRICE_SCALES[1]
-
     rubs_str = str(price.rubs)
     kopecks_str = "." + str(price.kopecks)
+
+    if len(rubs_str) >= 7:
+        scale = RES_PRICE_SCALES[2]
+    elif len(rubs_str) >= 4:
+        scale = RES_PRICE_SCALES[1]
+
     str_size = len(rubs_str) * CH_SZ_X * scale + len(kopecks_str) * CH_SZ_X
 
     x_end = EPD_HEIGHT - EDGE_X_OFF
@@ -158,12 +180,18 @@ def _view_base_price(price: PriceVal, fb_rot) -> ElemPos:
 
 
 def _view_price_data_impl(price_data: PriceData, fb_b_rot, fb_r_rot):
-    title_pos = _view_title(fb_b_rot, price_data.name)
+    _view_title(fb_b_rot, price_data.name)
 
-    base_pr_pos = _view_base_price(price_data.base_price, fb_b_rot)
+    res_pr_pos = _view_res_price(price_data.res_price, fb_b_rot)
     if price_data.discount_data:
-        fb_helper.draw_border(fb_r_rot, EPD_HEIGHT, EPD_WIDTH, 2)
-        _view_crossed_price(price_data.discount_data.sale_price, fb_r_rot, base_pr_pos)
+        d_data = price_data.discount_data
+        fb_helper.draw_border(fb_r_rot, EPD_HEIGHT, EPD_WIDTH, 3)
+        _view_crossed_price(
+            d_data.base_price, fb_r_rot, res_pr_pos)
+        _view_discount(d_data.discount, fb_r_rot)
+    else:
+        fb_helper.draw_border(fb_b_rot, EPD_HEIGHT, EPD_WIDTH, 3)
+        
     fb_helper.write_logo(fb_b_rot, fb_r_rot, EPD_HEIGHT, EPD_WIDTH)
 
 
