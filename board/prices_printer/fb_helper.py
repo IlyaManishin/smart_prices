@@ -1,6 +1,7 @@
 import framebuf
 
 from .base_config import *
+from . import fb_chars
 
 
 def get_bytearr_size(w, h):
@@ -19,7 +20,7 @@ def draw_text_scaled(fb, text, x, y, color, scale, max_x):
     cy = y
     for ch in text:
         ch_temp.fill(1)
-        ch_temp.text(ch, 0, 0, 0)
+        fb_chars.write_ch(ch_temp, ch)
 
         if is_compressed:
             for px in range(CH_SZ_X):
