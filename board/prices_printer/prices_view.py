@@ -48,13 +48,13 @@ class ElemPos:
         self.x_end = x_end
         self.y_end = y_end
 
+BASE_BORDER_DEPTH = 3
 
 TITLE_LINES_MAX = 2
 TITLE_SCALES = [1.7, 1.5, 1]
 TITLE_MAX_LINES = 2
-TITLE_Y_OFF = 5
+TITLE_Y_OFF = 3
 
-PRICES_BLK_X = 120
 CROSS_DEPTH = 1
 CROSSED_PRICE_OFF_Y = 10
 CROSSED_PRICE_SCALES = [2.5, 2, 1]
@@ -101,7 +101,7 @@ def _view_title(fb_rot, title) -> ElemPos:
         if len(lines) <= TITLE_LINES_MAX:
             break
 
-    y_cur = TITLE_Y_OFF
+    y_cur = TITLE_Y_OFF + BASE_BORDER_DEPTH
     ch_size_y = round(CH_SZ_Y * scale)
     for line in lines:
         fb_helper.draw_text_scaled(
@@ -185,12 +185,12 @@ def _view_price_data_impl(price_data: PriceData, fb_b_rot, fb_r_rot):
     res_pr_pos = _view_res_price(price_data.res_price, fb_b_rot)
     if price_data.discount_data:
         d_data = price_data.discount_data
-        fb_helper.draw_border(fb_r_rot, EPD_HEIGHT, EPD_WIDTH, 3)
+        fb_helper.draw_border(fb_r_rot, EPD_HEIGHT, EPD_WIDTH, BASE_BORDER_DEPTH)
         _view_crossed_price(
             d_data.base_price, fb_r_rot, res_pr_pos)
         _view_discount(d_data.discount, fb_r_rot)
     else:
-        fb_helper.draw_border(fb_b_rot, EPD_HEIGHT, EPD_WIDTH, 3)
+        fb_helper.draw_border(fb_b_rot, EPD_HEIGHT, EPD_WIDTH, BASE_BORDER_DEPTH)
         
     fb_helper.write_logo(fb_b_rot, fb_r_rot, EPD_HEIGHT, EPD_WIDTH)
 
