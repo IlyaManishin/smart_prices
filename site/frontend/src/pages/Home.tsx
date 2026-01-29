@@ -166,7 +166,7 @@ export default function Home() {
                                 </td>
 
                                 <td className={`status-cell ${b.synced ? "sync-ok" : "sync-wait"}`}>
-                                    {b.synced ? "Обновлено" : "Ожидание"}
+                                    {b.synced ? "Обновлено" : "Обновление"}
                                 </td>
 
                                 <td>
