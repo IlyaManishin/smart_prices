@@ -23,3 +23,24 @@ def login(data: LoginRequest):
     if data.login == TEMP_LOGIN and data.password == TEMP_PASSWORD:
         return {"ok": True}
     raise HTTPException(status_code=401, detail="invalid credentials")
+
+@app.get("/api/boards")
+def get_boards():
+    return [
+        {
+            "id": 1,
+            "product": "Молоко ультрапастеризованное 3.2% 1 литр",
+            "base_price": 129.90,
+            "discount": 10,
+            "installed_at": "2026-01-20",
+            "synced": True
+        },
+        {
+            "id": 2,
+            "product": "Хлеб ржаной фермерский нарезной",
+            "base_price": 54.50,
+            "discount": 0,
+            "installed_at": "2026-01-18",
+            "synced": False
+        }
+    ]

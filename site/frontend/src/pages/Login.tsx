@@ -17,16 +17,35 @@ export default function Login({ onSuccess }: { onSuccess: () => void }) {
         else setError(true)
     }
 
+    function onKeyDown(e: React.KeyboardEvent) {
+        if (e.key === "Enter") submit()
+    }
+
     return (
         <div className="center">
-            <h1>Умные ценники PVZ</h1>
+            <div className="login-card">
+                <div className="login-title">Умные ценники PVZ</div>
+                <div className="login-subtitle">Панель управления</div>
 
-            <input placeholder="Логин" value={login} onChange={e => setLogin(e.target.value)} />
-            <input type="password" placeholder="Пароль" value={password} onChange={e => setPassword(e.target.value)} />
+                <input
+                    placeholder="Логин"
+                    value={login}
+                    onChange={e => setLogin(e.target.value)}
+                    onKeyDown={onKeyDown}
+                />
 
-            <button onClick={submit}>Войти</button>
+                <input
+                    type="password"
+                    placeholder="Пароль"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    onKeyDown={onKeyDown}
+                />
 
-            {error && <div className="error">Неверный логин или пароль</div>}
+                <button onClick={submit}>Войти</button>
+
+                {error && <div className="error">Неверный логин или пароль</div>}
+            </div>
         </div>
     )
 }
