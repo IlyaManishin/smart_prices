@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from api.router import router as api_router 
 
@@ -17,3 +18,4 @@ db.init_db()
 init_users.init_admin_user()
 
 app.include_router(api_router, prefix="/api")
+app.mount("/", StaticFiles(directory="front", html=True), name="frontend")
