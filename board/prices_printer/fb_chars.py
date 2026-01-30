@@ -1,5 +1,5 @@
 import framebuf
-from base_config import CH_SZ_X, CH_SZ_Y
+from .base_config import CH_SZ_X, CH_SZ_Y
 
 
 RU_FONT = {
