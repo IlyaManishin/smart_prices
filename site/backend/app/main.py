@@ -27,3 +27,5 @@ def init_routers():
     app.include_router(brd_router, prefix="/board_host")
 
     app.mount("/", StaticFiles(directory="front", html=True), name="frontend")
+    
+init_routers()
