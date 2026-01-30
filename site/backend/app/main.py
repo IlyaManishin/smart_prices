@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
 
 from routers.api import router as api_router 
 from routers.board_host import router as brd_router
@@ -15,6 +16,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+load_dotenv() 
 
 db.init_db()
 init_users.init_admin_user()

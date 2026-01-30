@@ -7,9 +7,9 @@ class BoardORM(Base):
     __tablename__ = "boards"
 
     id = Column(String, primary_key=True, index=True)
-    product = Column(String, nullable=False)
-    base_price = Column(Float, nullable=False)
-    discount = Column(Float, nullable=False)
+    product = Column(String)
+    base_price = Column(Float)
+    discount = Column(Float)
     installed_at = Column(String, nullable=False)
     synced = Column(Boolean, default=True)
 

@@ -1,12 +1,11 @@
 import os
 from sqlalchemy.orm import Session
-from dotenv import load_dotenv
 
 from database.db import SessionLocal
 from database.models import UserORM
 from database.utils import hash_password
 
-load_dotenv() 
+
 def init_admin_user():
     db: Session = SessionLocal()
     try:
