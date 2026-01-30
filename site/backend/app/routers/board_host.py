@@ -33,6 +33,10 @@ class BoardData(BaseModel):
     product: ProductInfo
 
 
+class ConfirmBoardRequest(BaseModel):
+    board_id: str
+
+
 @router.get("/unsync_board", response_model=Optional[BoardData])
 def get_first_unsynced_board(
         authorization: str = Header(...),
@@ -66,3 +70,22 @@ def get_first_unsynced_board(
             discount=discount_block
         )
     )
+
+
+@router.post("/confirm_board")
+def confirm_board(
+    data: ConfirmBoardRequest,
+    authorization: str = Header(...),
+    db: Session = Depends(get_db)
+):
+    if authorization != f"Bearer {GATEWAY_TOKEN}":
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    board = db.query(BoardORM).filter(BoardORM.id == data.board_id).first()
+    if not board:
+        raise HTTPException(status_code=404, detail="Board not found")
+
+    board.synced = True
+    db.commit()
+
+    return {"ok": True, "board_id": board.id}
