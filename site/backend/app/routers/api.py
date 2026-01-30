@@ -63,7 +63,7 @@ def update_board(board: Board, db: Session = Depends(get_db)):
         db_board.base_price = board.base_price
         db_board.discount = board.discount
         db_board.installed_at = board.installed_at
-        db_board.synced = True
+        db_board.synced = False
     else:
         raise HTTPException(status_code=404, detail="No board id")
     # else:
