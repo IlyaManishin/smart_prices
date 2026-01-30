@@ -61,7 +61,7 @@ def get_first_unsynced_board(
             base_price=PriceValue(rubs=int(board.base_price)),
             discount=board.discount
         )
-
+        
     return BoardData(
         board_id=board.id,
         product=ProductInfo(
