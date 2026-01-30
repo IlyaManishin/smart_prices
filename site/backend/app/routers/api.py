@@ -17,7 +17,7 @@ class LoginRequest(BaseModel):
 
 
 class Board(BaseModel):
-    id: Optional[int] = None
+    id: str
     product: str
     base_price: float
     discount: float
@@ -66,15 +66,7 @@ def update_board(board: Board, db: Session = Depends(get_db)):
         db_board.synced = False
     else:
         raise HTTPException(status_code=404, detail="No board id")
-    # else:
-    #     db_board = BoardORM(
-    #         product=board.product,
-    #         base_price=board.base_price,
-    #         discount=board.discount,
-    #         installed_at=board.installed_at,
-    #         synced=True,
-    #     )
-    #     db.add(db_board)
+
 
     db.commit()
     db.refresh(db_board)

@@ -127,7 +127,9 @@ export default function Home() {
                     <tbody>
                         {boards.map((b, i) => (
                             <tr key={b.id}>
-                                <td>{b.id}</td>
+                                <td className="id-cell">
+                                    {b.id}
+                                </td>
 
                                 <td>
                                     <textarea

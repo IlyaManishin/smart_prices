@@ -6,7 +6,7 @@ Base = declarative_base()
 class BoardORM(Base):
     __tablename__ = "boards"
 
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(String, primary_key=True, index=True)
     product = Column(String, nullable=False)
     base_price = Column(Float, nullable=False)
     discount = Column(Float, nullable=False)
