@@ -4,8 +4,10 @@
 
 Цель проекта — предоставить рабочую архитектуру, в которой пользователь может изменить информацию о товаре в веб‑интерфейсе, после чего обновлённые данные автоматически доходят до нужного электронного ценника и отображаются на e‑Paper экране.
 
-<img width="963" height="1280" alt="изображение" src="https://github.com/user-attachments/assets/8132fddb-6ee9-4102-bdfb-96281b995c54" />
-<img width="1280" height="619" alt="изображение" src="https://github.com/user-attachments/assets/2232266c-4453-4fa0-aada-7e42ad3531c8" />
+<div style="display: flex; gap: 10px;">
+  <img width="300" src="https://github.com/user-attachments/assets/8132fddb-6ee9-4102-bdfb-96281b995c54" />
+  <img width="300" src="https://github.com/user-attachments/assets/2232266c-4453-4fa0-aada-7e42ad3531c8" />
+</div>
 ---
 
 ## Общая архитектура
